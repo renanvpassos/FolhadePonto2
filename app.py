@@ -2331,12 +2331,117 @@ try:
 except Exception:
     pass
 
-st.sidebar.markdown(f"### 👤 Usuário Ativo")
-st.sidebar.write(f"Olá, **{user_name}**")
-st.sidebar.caption(user_email)
-st.sidebar.markdown("---")
+# =====================================================================
+# SIDEBAR MODERNA
+# =====================================================================
+st.markdown("""
+<style>
+    /* ---------- Logo no topo ---------- */
+    .sidebar-logo {
+        display: flex;
+        justify-content: center;
+        padding: 4px 0 6px 0;
+    }
+    .sidebar-logo img {
+        width: 110px;
+        max-width: 70%;
+        height: auto;
+    }
 
-st.sidebar.markdown("### 📋 Navegação")
+    /* ---------- Menu de páginas (radio) como botões ---------- */
+    section[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 8px;
+        width: 100%;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label {
+        width: 100%;
+        margin: 0;
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: #F1F5F9;
+        border: 1.5px solid #E2E8F0;
+        cursor: pointer;
+        transition: transform .15s ease, box-shadow .15s ease,
+                    background .15s ease, border-color .15s ease;
+    }
+    /* Esconde a bolinha do radio */
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
+        display: none;
+    }
+    /* Texto: maior e em negrito */
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #1E3A8A;
+        margin: 0;
+        letter-spacing: .01em;
+    }
+    /* Hover */
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
+        background: #E0E7FF;
+        border-color: #2563EB;
+        transform: translateX(4px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.20);
+    }
+    /* Clique */
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    }
+    /* Página selecionada */
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
+        background: linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%);
+        border-color: transparent;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.30);
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
+        color: #FFFFFF;
+    }
+
+    /* ---------- Botão de logout: só ícone, vermelho ---------- */
+    section[data-testid="stSidebar"] div.st-key-btn_logout {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    section[data-testid="stSidebar"] div.st-key-btn_logout button {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px;
+        min-height: 44px;
+        padding: 0;
+        border-radius: 12px;
+        border: none;
+        background: #DC2626;
+        color: #FFFFFF;
+        box-shadow: 0 6px 14px rgba(220, 38, 38, 0.35);
+        transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    section[data-testid="stSidebar"] div.st-key-btn_logout button p {
+        font-size: 1.3rem;
+        margin: 0;
+        line-height: 1;
+    }
+    section[data-testid="stSidebar"] div.st-key-btn_logout button:hover {
+        background: #B91C1C;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 22px rgba(220, 38, 38, 0.45);
+        color: #FFFFFF;
+    }
+    section[data-testid="stSidebar"] div.st-key-btn_logout button:active {
+        background: #991B1B;
+        transform: scale(0.92);
+        box-shadow: 0 2px 6px rgba(220, 38, 38, 0.40);
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Logo em miniatura no lugar de "Usuário Ativo"
+st.sidebar.markdown(
+    f'<div class="sidebar-logo"><img src="data:image/png;base64,{get_logo_base64()}" alt="Logo"></div>',
+    unsafe_allow_html=True
+)
+st.sidebar.markdown("---")
 
 opcoes_menu = ["REGISTRO DE PONTO", "LOG", "ESPELHO DE PONTO"]
 if cargo_usuario == "Master":
@@ -2357,7 +2462,7 @@ opcao = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-if st.sidebar.button("🚪 Sair / Desconectar", use_container_width=True, type="secondary"):
+if st.sidebar.button("⏻", key="btn_logout", help="Sair / Desconectar"):
     st.session_state.clear()
     st.rerun()
 
