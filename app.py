@@ -1205,12 +1205,11 @@ st.markdown("""
         .st-key-ponto_card_saida_almoco button,
         .st-key-ponto_card_retorno_almoco button,
         .st-key-ponto_card_saida button {
-            min-height: 260px;
+            min-height: 420px;
             padding: 24px 12px;
             white-space: pre-wrap;
-            line-height: 1.4;
-            font-size: 2rem;
-            font-weight: 900 !important;
+            line-height: 1.5;
+            font-size: 4rem;
             border: 0;
             background: transparent;
             transition: transform 160ms ease, box-shadow 160ms ease;
@@ -1220,9 +1219,15 @@ st.markdown("""
         .st-key-ponto_card_retorno_almoco button p,
         .st-key-ponto_card_saida button p {
             font-size: inherit;
+            font-weight: 400 !important;
+            line-height: 1.5;
+            margin: 0 0 0.6em;
+        }
+        .st-key-ponto_card_entrada button strong,
+        .st-key-ponto_card_saida_almoco button strong,
+        .st-key-ponto_card_retorno_almoco button strong,
+        .st-key-ponto_card_saida button strong {
             font-weight: 900 !important;
-            line-height: inherit;
-            margin: 0;
         }
         .st-key-ponto_card_entrada button:hover,
         .st-key-ponto_card_saida_almoco button:hover,
@@ -2390,8 +2395,9 @@ if opcao == "REGISTRO DE PONTO":
     for coluna, (etapa, identificador) in zip(colunas_etapas, etapas_ponto):
         horario_registrado = pontos[etapa]
         estado_card = "✅ Registrado" if horario_registrado else "◷ Pendente"
+        texto_card = f"**{etapa}**\n\n{estado_card}"
         if horario_registrado:
-            estado_card += f"\n{horario_registrado.strftime('%H:%M:%S')}"
+            texto_card += f"\n\n**{horario_registrado.strftime('%H:%M:%S')}**"
         chave_card = f"ponto_card_{identificador}"
         with coluna:
             container_card = st.container(key=chave_card)
@@ -2410,7 +2416,7 @@ if opcao == "REGISTRO DE PONTO":
                         unsafe_allow_html=True
                     )
                 if st.button(
-                    f"{etapa}\n{estado_card}",
+                    texto_card,
                     key=f"selecionar_ponto_{identificador}",
                     use_container_width=True
                 ):
