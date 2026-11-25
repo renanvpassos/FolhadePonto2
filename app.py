@@ -18,6 +18,7 @@ import time
 from xml.sax.saxutils import escape
 import smtplib, ssl, secrets, hmac
 from email.message import EmailMessage
+from streamlit_option_menu import option_menu
 
 # --- BLOQUEIO DE DISPOSITIVOS MÓVEIS ---
 components.html("""
@@ -2332,11 +2333,10 @@ except Exception:
     pass
 
 # =====================================================================
-# SIDEBAR MODERNA
+# SIDEBAR (streamlit-option-menu)
 # =====================================================================
 st.markdown("""
 <style>
-    /* ---------- Logo no topo ---------- */
     .sidebar-logo {
         display: flex;
         justify-content: center;
@@ -2346,56 +2346,6 @@ st.markdown("""
         width: 110px;
         max-width: 70%;
         height: auto;
-    }
-
-    /* ---------- Menu de páginas (radio) como botões ---------- */
-    section[data-testid="stSidebar"] div[role="radiogroup"] {
-        gap: 8px;
-        width: 100%;
-    }
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label {
-        width: 100%;
-        margin: 0;
-        padding: 14px 16px;
-        border-radius: 12px;
-        background: #F1F5F9;
-        border: 1.5px solid #E2E8F0;
-        cursor: pointer;
-        transition: transform .15s ease, box-shadow .15s ease,
-                    background .15s ease, border-color .15s ease;
-    }
-    /* Esconde a bolinha do radio */
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label > div:first-child {
-        display: none;
-    }
-    /* Texto: maior e em negrito */
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label p {
-        font-size: 1.05rem;
-        font-weight: 800;
-        color: #1E3A8A;
-        margin: 0;
-        letter-spacing: .01em;
-    }
-    /* Hover */
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
-        background: #E0E7FF;
-        border-color: #2563EB;
-        transform: translateX(4px);
-        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.20);
-    }
-    /* Clique */
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label:active {
-        transform: scale(0.97);
-        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
-    }
-    /* Página selecionada */
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
-        background: linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%);
-        border-color: transparent;
-        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.30);
-    }
-    section[data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) p {
-        color: #FFFFFF;
     }
 
     /* ---------- Botão de logout: só ícone, vermelho ---------- */
@@ -2436,30 +2386,64 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Logo em miniatura no lugar de "Usuário Ativo"
+# Logo em miniatura
 st.sidebar.markdown(
     f'<div class="sidebar-logo"><img src="data:image/png;base64,{get_logo_base64()}" alt="Logo"></div>',
     unsafe_allow_html=True
 )
 st.sidebar.markdown("---")
 
+# Nomes das opções (mantidos iguais, pois a lógica do app depende deles) + ícones Bootstrap
 opcoes_menu = ["REGISTRO DE PONTO", "LOG", "ESPELHO DE PONTO"]
+icones_menu = ["geo-alt-fill", "megaphone-fill", "clipboard-data-fill"]
 if cargo_usuario == "Master":
-    opcoes_menu.insert(opcoes_menu.index("LOG") + 1, "LOG INTERNO")
+    pos = opcoes_menu.index("LOG") + 1
+    opcoes_menu.insert(pos, "LOG INTERNO")
+    icones_menu.insert(pos, "shield-lock-fill")
 
-def limpar_estado_ao_trocar_pagina():
+def limpar_estado_ao_trocar_pagina(*args):
     estado_persistente = {"connected", "user_info", "intro_exibida", "pagina_menu"}
     for chave in list(st.session_state.keys()):
         if chave not in estado_persistente:
             del st.session_state[chave]
 
-opcao = st.sidebar.radio(
-    "Selecione a ação:",
-    opcoes_menu,
-    label_visibility="collapsed",
-    key="pagina_menu",
-    on_change=limpar_estado_ao_trocar_pagina
-)
+with st.sidebar:
+    opcao = option_menu(
+        menu_title=None,
+        options=opcoes_menu,
+        icons=icones_menu,
+        default_index=0,
+        key="pagina_menu",
+        on_change=limpar_estado_ao_trocar_pagina,
+        styles={
+            "container": {
+                "padding": "0",
+                "background-color": "transparent",
+            },
+            "icon": {
+                "color": "#1E3A8A",
+                "font-size": "1.15rem",
+            },
+            "nav-link": {
+                "font-size": "1.05rem",
+                "font-weight": "800",
+                "color": "#1E3A8A",
+                "text-align": "left",
+                "width": "100%",
+                "margin": "0 0 8px 0",
+                "padding": "14px 16px",
+                "border-radius": "12px",
+                "background-color": "#F1F5F9",
+                "--hover-color": "#E0E7FF",
+            },
+            "nav-link-selected": {
+                "background": "linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%)",
+                "color": "#FFFFFF",
+                "font-weight": "800",
+                "box-shadow": "0 8px 20px rgba(37, 99, 235, 0.30)",
+            },
+        },
+    )
 
 st.sidebar.markdown("---")
 if st.sidebar.button("⏻", key="btn_logout", help="Sair / Desconectar"):
