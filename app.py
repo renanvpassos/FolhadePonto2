@@ -1195,11 +1195,13 @@ st.markdown("""
         .st-key-ponto_card_saida_almoco button,
         .st-key-ponto_card_retorno_almoco button,
         .st-key-ponto_card_saida button {
-            min-height: 108px;
+            min-height: 220px;
+            padding: 24px 16px;
             white-space: pre-wrap;
-            line-height: 1.5;
-            font-weight: 600;
-            border-radius: 16px;
+            line-height: 1.7;
+            font-size: 1.15rem;
+            font-weight: 700;
+            border-radius: 20px;
             transition: transform 160ms ease, box-shadow 160ms ease;
         }
         .st-key-ponto_card_entrada button:hover,
@@ -2313,6 +2315,19 @@ for k, v in pontos.items():
 
 etapa_ponto_aberta = None
 if opcao == "REGISTRO DE PONTO":
+    st.markdown(
+        """
+        <style>
+            div[data-testid="stMainBlockContainer"] {
+                width: 100%;
+                max-width: 1280px !important;
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
     st.title("📍 Registro de Ponto")
     st.caption(f"🗓️ {hoje.strftime('%d/%m/%Y')}  ·  ⏱️ Horário atual: {agora_br.strftime('%H:%M')}")
     st.write("")
@@ -2324,7 +2339,9 @@ if opcao == "REGISTRO DE PONTO":
         ("SAÍDA", "saida", "④")
     ]
     colunas_etapas = st.columns(4)
+    colunas_por_etapa = {}
     for coluna, (etapa, identificador, numero) in zip(colunas_etapas, etapas_ponto):
+        colunas_por_etapa[etapa] = coluna
         horario_registrado = pontos[etapa]
         estado_card = "✅ Registrado" if horario_registrado else "◷ Pendente"
         if horario_registrado:
@@ -2336,6 +2353,12 @@ if opcao == "REGISTRO DE PONTO":
                     st.markdown(
                         f'<style>.st-key-{chave_card} button {{ background: #dcfce7; '
                         'border: 1px solid #86efac; color: #166534; }</style>',
+                        unsafe_allow_html=True
+                    )
+                if st.session_state.get("etapa_ponto_aberta") == etapa:
+                    st.markdown(
+                        f'<style>.st-key-{chave_card} button {{ outline: 3px solid #3b82f6; '
+                        'outline-offset: 2px; }</style>',
                         unsafe_allow_html=True
                     )
                 if st.button(
@@ -2358,7 +2381,7 @@ if opcao == "REGISTRO DE PONTO":
 
 if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
     
-    with st.container():
+    with colunas_por_etapa[opcao].container(border=True):
         st.markdown('<div class="card-ponto">', unsafe_allow_html=True)
         horario_atual_ponto = pontos[opcao]
         
