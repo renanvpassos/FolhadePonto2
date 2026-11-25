@@ -1685,10 +1685,6 @@ def converter_para_excel_multiaba(df_geral):
 
 # =====================================================================
 # LOGIN MODERNO
-# =====================================================================
-
-# =====================================================================
-# LOGIN MODERNO
 # Substitua a função `gerenciar_acesso()` inteira do app.py por este bloco
 # (inclui a nova função `aplicar_estilo_login()` logo acima dela).
 # Nenhuma lógica de autenticação foi alterada, apenas o visual.
@@ -1713,7 +1709,7 @@ def aplicar_estilo_login():
 
         /* ---------- Cartão central ---------- */
         div.block-container {
-            max-width: 460px;
+            max-width: 540px;
             margin: 5vh auto 0 auto;
             padding: 2.2rem 2.2rem 2rem 2.2rem;
             background: #ffffff;
@@ -1731,8 +1727,8 @@ def aplicar_estilo_login():
             margin-bottom: 1.2rem;
         }
         .login-header img {
-            width: 300px;
-            max-width: 90%;
+            width: 400px;
+            max-width: 100%;
             height: auto;
             margin-bottom: 12px;
         }
@@ -1833,14 +1829,24 @@ def aplicar_estilo_login():
             box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
         }
         /* Botão "Entrar": largura reduzida e centralizado */
+        div[data-testid="stElementContainer"]:has([data-testid="stFormSubmitButton"]),
+        [data-testid="stForm"] .stButton,
+        [data-testid="stForm"] div.element-container:has(button) {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
         [data-testid="stFormSubmitButton"] {
             display: flex;
             justify-content: center;
+            width: auto;
+            margin: 0 auto;
         }
         [data-testid="stFormSubmitButton"] > button {
             width: auto;
             min-width: 200px;
             padding: 0 2rem;
+            margin: 0 auto;
         }
 
         .stButton > button:focus-visible,
