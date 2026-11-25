@@ -2425,7 +2425,7 @@ with st.sidebar:
                 "font-size": "0.95rem",
             },
             "nav-link": {
-                "font-size": "0.60rem",
+                "font-size": "0.82rem",
                 "font-weight": "800",
                 "color": "#1E3A8A",
                 "text-align": "left",
