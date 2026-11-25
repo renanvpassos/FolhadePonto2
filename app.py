@@ -1205,12 +1205,12 @@ st.markdown("""
         .st-key-ponto_card_saida_almoco button,
         .st-key-ponto_card_retorno_almoco button,
         .st-key-ponto_card_saida button {
-            min-height: 220px;
+            min-height: 260px;
             padding: 24px 12px;
             white-space: pre-wrap;
-            line-height: 1.7;
-            font-size: 1.6rem;
-            font-weight: 700;
+            line-height: 1.4;
+            font-size: 2rem;
+            font-weight: 800;
             border: 0;
             background: transparent;
             transition: transform 160ms ease, box-shadow 160ms ease;
@@ -1220,6 +1220,9 @@ st.markdown("""
         .st-key-ponto_card_retorno_almoco button p,
         .st-key-ponto_card_saida button p {
             font-size: inherit;
+            font-weight: 800;
+            line-height: inherit;
+            margin: 0;
         }
         .st-key-ponto_card_entrada button:hover,
         .st-key-ponto_card_saida_almoco button:hover,
@@ -2374,17 +2377,17 @@ if opcao == "REGISTRO DE PONTO":
     st.write("")
 
     etapas_ponto = [
-        ("ENTRADA", "entrada", "🚪"),
-        ("SAÍDA ALMOÇO", "saida_almoco", "🍽️"),
-        ("RETORNO ALMOÇO", "retorno_almoco", "🔄"),
-        ("SAÍDA", "saida", "🏁")
+        ("ENTRADA", "entrada"),
+        ("SAÍDA ALMOÇO", "saida_almoco"),
+        ("RETORNO ALMOÇO", "retorno_almoco"),
+        ("SAÍDA", "saida")
     ]
     identificadores_etapa = {
-        etapa: identificador for etapa, identificador, _ in etapas_ponto
+        etapa: identificador for etapa, identificador in etapas_ponto
     }
     colunas_etapas = st.columns(4, gap="small")
     containers_por_etapa = {}
-    for coluna, (etapa, identificador, icone) in zip(colunas_etapas, etapas_ponto):
+    for coluna, (etapa, identificador) in zip(colunas_etapas, etapas_ponto):
         horario_registrado = pontos[etapa]
         estado_card = "✅ Registrado" if horario_registrado else "◷ Pendente"
         if horario_registrado:
@@ -2407,17 +2410,17 @@ if opcao == "REGISTRO DE PONTO":
                         unsafe_allow_html=True
                     )
                 if st.button(
-                    f"{icone}  {etapa}\n{estado_card}",
+                    f"{etapa}\n{estado_card}",
                     key=f"selecionar_ponto_{identificador}",
                     use_container_width=True
                 ):
                     if st.session_state.get("etapa_ponto_aberta") == etapa:
                         st.session_state["etapa_ponto_aberta"] = None
-                        for nome_etapa, _, _ in etapas_ponto:
+                        for nome_etapa, _ in etapas_ponto:
                             st.session_state[f"confirmar_{nome_etapa}"] = False
                     else:
                         st.session_state["etapa_ponto_aberta"] = etapa
-                        for nome_etapa, _, _ in etapas_ponto:
+                        for nome_etapa, _ in etapas_ponto:
                             st.session_state[f"confirmar_{nome_etapa}"] = nome_etapa == etapa
                     st.rerun()
 
