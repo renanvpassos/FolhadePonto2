@@ -1212,7 +1212,7 @@ components.html("""
       }
     });
     // Caso queira limpar TODO o localStorage do domínio sempre que atualizar:
-    // window.parent.localStorage.clear();
+    window.parent.localStorage.clear();
   } catch (e) {}
 </script>
 """, height=0)
