@@ -1687,16 +1687,6 @@ def converter_para_excel_multiaba(df_geral):
 
 # =====================================================================
 # LOGIN MODERNO
-# Substitua a função `gerenciar_acesso()` inteira do app.py por este bloco
-# (inclui a nova função `aplicar_estilo_login()` logo acima dela).
-#
-# NOVO: fluxo "Esqueci minha senha" (código de 6 dígitos por e-mail).
-# 1) Rode o arquivo reset_senha.sql no Supabase.
-# 2) Configure [email] no secrets (veja as instruções).
-# 3) Adicione estes imports no TOPO do app.py:
-#
-#       import smtplib, ssl, secrets, hmac
-#       from email.message import EmailMessage
 # =====================================================================
 
 def aplicar_estilo_login():
@@ -1811,8 +1801,51 @@ def aplicar_estilo_login():
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
         }
         .stTextInput input {
-            color: #0F172A;
+            color: #0F172A !important;
+            -webkit-text-fill-color: #0F172A;
+            caret-color: #1E3A8A;
             padding: 0.7rem 0.9rem;
+        }
+
+        /* ---------- Tema claro FIXO (ignora o tema escuro do usuário) ---------- */
+        .stApp, div.block-container { color-scheme: light; }
+
+        .stTextInput div[data-baseweb="input"],
+        .stTextInput div[data-baseweb="base-input"],
+        .stTextInput input {
+            background-color: #F8FAFC !important;
+        }
+        .stTextInput div[data-baseweb="input"]:focus-within,
+        .stTextInput div[data-baseweb="input"]:focus-within div[data-baseweb="base-input"],
+        .stTextInput div[data-baseweb="input"]:focus-within input {
+            background-color: #FFFFFF !important;
+        }
+        .stTextInput input::placeholder {
+            color: #94A3B8 !important;
+            -webkit-text-fill-color: #94A3B8;
+            opacity: 1;
+        }
+        /* Preenchimento automático do navegador */
+        .stTextInput input:-webkit-autofill,
+        .stTextInput input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #F8FAFC inset !important;
+            -webkit-text-fill-color: #0F172A !important;
+        }
+        /* Ícone do "olhinho" da senha */
+        .stTextInput button {
+            background: transparent !important;
+            color: #64748B !important;
+        }
+        .stTextInput button svg { fill: currentColor; }
+
+        /* Textos auxiliares, alertas e botão secundário legíveis no cartão branco */
+        [data-testid="stCaptionContainer"],
+        [data-testid="stCaptionContainer"] p { color: #4B5563 !important; }
+        [data-testid="stAlert"] p,
+        [data-testid="stAlertContainer"] p { color: #1F2937 !important; }
+        .stButton > button[kind="secondary"] {
+            background: #FFFFFF;
+            color: #1F2937;
         }
 
         /* ---------- Botões ---------- */
@@ -1862,7 +1895,14 @@ def aplicar_estilo_login():
         div.st-key-btn_esqueci_senha {
             display: flex;
             justify-content: center;
+            width: 100% !important;
             margin-top: -0.4rem;
+        }
+        div.st-key-btn_esqueci_senha .stButton,
+        div.st-key-btn_esqueci_senha [data-testid="stButton"] {
+            display: flex;
+            justify-content: center;
+            width: 100%;
         }
         div.st-key-btn_esqueci_senha .stButton > button {
             height: auto;
