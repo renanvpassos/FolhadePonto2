@@ -1687,6 +1687,13 @@ def converter_para_excel_multiaba(df_geral):
 # LOGIN MODERNO
 # =====================================================================
 
+# =====================================================================
+# LOGIN MODERNO
+# Substitua a função `gerenciar_acesso()` inteira do app.py por este bloco
+# (inclui a nova função `aplicar_estilo_login()` logo acima dela).
+# Nenhuma lógica de autenticação foi alterada, apenas o visual.
+# =====================================================================
+
 def aplicar_estilo_login():
     """CSS aplicado SOMENTE na tela de login (não afeta o resto do sistema,
     porque esta função só é chamada enquanto o usuário não está conectado)."""
@@ -1724,22 +1731,22 @@ def aplicar_estilo_login():
             margin-bottom: 1.2rem;
         }
         .login-header img {
-            width: 200px;
-            max-width: 70%;
+            width: 300px;
+            max-width: 90%;
             height: auto;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
         .login-header h1 {
             color: #1E3A8A;
-            font-size: 1.45rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            margin: 0 0 4px 0;
+            margin: 0 0 3px 0;
             padding: 0;
             letter-spacing: -0.01em;
         }
         .login-header p {
             color: #6B7280;
-            font-size: 0.92rem;
+            font-size: 0.78rem;
             margin: 0;
         }
 
@@ -1757,13 +1764,20 @@ def aplicar_estilo_login():
             justify-content: center;
             border-radius: 9px;
             background: transparent;
-            color: #64748B;
+            color: #1F2937;
+            font-weight: 600;
+        }
+        .stTabs [data-baseweb="tab"] p {
+            color: #1F2937;
             font-weight: 600;
         }
         .stTabs [aria-selected="true"] {
             background: #ffffff;
             color: #1E3A8A;
             box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+        }
+        .stTabs [aria-selected="true"] p {
+            color: #1E3A8A;
         }
         .stTabs [data-baseweb="tab-highlight"],
         .stTabs [data-baseweb="tab-border"] { display: none; }
@@ -1818,6 +1832,17 @@ def aplicar_estilo_login():
             transform: translateY(-1px);
             box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
         }
+        /* Botão "Entrar": largura reduzida e centralizado */
+        [data-testid="stFormSubmitButton"] {
+            display: flex;
+            justify-content: center;
+        }
+        [data-testid="stFormSubmitButton"] > button {
+            width: auto;
+            min-width: 200px;
+            padding: 0 2rem;
+        }
+
         .stButton > button:focus-visible,
         [data-testid="stFormSubmitButton"] > button:focus-visible {
             outline: 3px solid rgba(37, 99, 235, 0.45);
@@ -1880,7 +1905,7 @@ def gerenciar_acesso():
                     autocomplete="current-password"
                 )
 
-                enviar_login = st.form_submit_button("Entrar", type="primary", use_container_width=True)
+                enviar_login = st.form_submit_button("Entrar", type="primary")
 
                 if enviar_login:
                     if email_login and senha_login:
