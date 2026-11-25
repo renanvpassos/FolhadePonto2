@@ -2973,7 +2973,7 @@ elif opcao == "LOG INTERNO":
 
 # --- MENU: RELATÓRIO ---
 elif opcao == "ESPELHO DE PONTO":
-    st.title("📊 Espelho de Ponto")
+    st.title("Espelho de Ponto")
     email_busca = user_email
     nome_busca = user_name
     
@@ -2988,7 +2988,7 @@ elif opcao == "ESPELHO DE PONTO":
     lista_todos_usuarios = []
     
     if cargo_usuario == "Master":
-        st.markdown("### 🔑 Painel de Gestão (Master)")
+        st.markdown("### 🔑 Visão de Master")
         try:
             usuarios_banco = supabase.table("usuarios_ponto").select("email, nome, celula").execute()
             if usuarios_banco.data:
@@ -3034,7 +3034,7 @@ elif opcao == "ESPELHO DE PONTO":
             st.error("Erro ao carregar a lista completa de funcionários.")
     
     elif cargo_usuario == "Supervisor":
-        st.markdown("### 🔑 Painel de Gestão (Supervisor)")
+        st.markdown("### 🔑 Visão de Supervisor")
         if celula_usuario:
             st.info(f"📍 Sua Célula atual: **{celula_usuario}**")
         if not celula_usuario:
