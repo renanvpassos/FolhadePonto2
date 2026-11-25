@@ -2332,15 +2332,41 @@ try:
 except Exception:
     pass
 
-# =====================================================================
-# SIDEBAR (streamlit-option-menu)
-# =====================================================================
 st.markdown("""
 <style>
+    /* ---------- Sidebar: largura FIXA (sem redimensionar) ---------- */
+    section[data-testid="stSidebar"][aria-expanded="true"] {
+        width: 250px !important;
+        min-width: 250px !important;
+        max-width: 250px !important;
+    }
+    /* Esconde a alça de redimensionamento */
+    [data-testid="stSidebarResizeHandle"],
+    section[data-testid="stSidebar"] [class*="ResizeHandle"],
+    section[data-testid="stSidebar"] [class*="resize"] {
+        display: none !important;
+    }
+    /* Remove espaços extras internos */
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        padding: 0 !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+        padding: 0.5rem 0.75rem 0.75rem 0.75rem !important;
+    }
+
+    /* ---------- Conteúdo da sidebar em coluna, ocupando a altura toda ---------- */
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"],
+    section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] > div[data-testid="stVerticalBlock"] {
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - 4rem);
+    }
+
+    /* ---------- Logo ---------- */
     .sidebar-logo {
         display: flex;
         justify-content: center;
-        padding: 4px 0 6px 0;
+        padding: 0 0 4px 0;
     }
     .sidebar-logo img {
         width: 110px;
@@ -2348,13 +2374,11 @@ st.markdown("""
         height: auto;
     }
 
-    /* ---------- Botão de logout: canto inferior direito da sidebar ---------- */
+    /* ---------- Logout: dentro da sidebar, canto inferior direito ---------- */
     section[data-testid="stSidebar"] div.st-key-btn_logout {
-        position: fixed;
-        bottom: 16px;
-        left: calc(var(--sidebar-width, 21rem) - 60px);
+        margin-top: auto;
+        align-self: flex-end;
         width: auto !important;
-        z-index: 999;
     }
     section[data-testid="stSidebar"] div.st-key-btn_logout button {
         width: 44px !important;
