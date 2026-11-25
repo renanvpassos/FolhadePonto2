@@ -1,0 +1,6 @@
+pytz
+supabase
+pandas
+openpyxl
+streamlit-antd-components
+reportlab
