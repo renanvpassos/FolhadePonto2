@@ -16,6 +16,8 @@ import streamlit.components.v1 as components
 import base64
 import time
 from xml.sax.saxutils import escape
+import smtplib, ssl, secrets, hmac
+from email.message import EmailMessage
 
 # --- BLOQUEIO DE DISPOSITIVOS MÓVEIS ---
 components.html("""
