@@ -2349,7 +2349,7 @@ if opcao == "REGISTRO DE PONTO":
         <style>
             div[data-testid="stMainBlockContainer"] {
                 width: 100%;
-                max-width: 1600px !important;
+                max-width: 2000px !important;
                 padding-left: 2rem;
                 padding-right: 2rem;
             }
