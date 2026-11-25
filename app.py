@@ -1209,11 +1209,17 @@ st.markdown("""
             padding: 24px 12px;
             white-space: pre-wrap;
             line-height: 1.7;
-            font-size: 1.15rem;
+            font-size: 1.6rem;
             font-weight: 700;
             border: 0;
             background: transparent;
             transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+        .st-key-ponto_card_entrada button p,
+        .st-key-ponto_card_saida_almoco button p,
+        .st-key-ponto_card_retorno_almoco button p,
+        .st-key-ponto_card_saida button p {
+            font-size: inherit;
         }
         .st-key-ponto_card_entrada button:hover,
         .st-key-ponto_card_saida_almoco button:hover,
@@ -2368,17 +2374,17 @@ if opcao == "REGISTRO DE PONTO":
     st.write("")
 
     etapas_ponto = [
-        ("ENTRADA", "entrada", "①"),
-        ("SAÍDA ALMOÇO", "saida_almoco", "②"),
-        ("RETORNO ALMOÇO", "retorno_almoco", "③"),
-        ("SAÍDA", "saida", "④")
+        ("ENTRADA", "entrada", "🚪"),
+        ("SAÍDA ALMOÇO", "saida_almoco", "🍽️"),
+        ("RETORNO ALMOÇO", "retorno_almoco", "🔄"),
+        ("SAÍDA", "saida", "🏁")
     ]
     identificadores_etapa = {
         etapa: identificador for etapa, identificador, _ in etapas_ponto
     }
     colunas_etapas = st.columns(4, gap="small")
     containers_por_etapa = {}
-    for coluna, (etapa, identificador, numero) in zip(colunas_etapas, etapas_ponto):
+    for coluna, (etapa, identificador, icone) in zip(colunas_etapas, etapas_ponto):
         horario_registrado = pontos[etapa]
         estado_card = "✅ Registrado" if horario_registrado else "◷ Pendente"
         if horario_registrado:
@@ -2401,7 +2407,7 @@ if opcao == "REGISTRO DE PONTO":
                         unsafe_allow_html=True
                     )
                 if st.button(
-                    f"{numero}  {etapa}\n{estado_card}",
+                    f"{icone}  {etapa}\n{estado_card}",
                     key=f"selecionar_ponto_{identificador}",
                     use_container_width=True
                 ):
