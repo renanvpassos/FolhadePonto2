@@ -1687,7 +1687,14 @@ def converter_para_excel_multiaba(df_geral):
 # LOGIN MODERNO
 # Substitua a função `gerenciar_acesso()` inteira do app.py por este bloco
 # (inclui a nova função `aplicar_estilo_login()` logo acima dela).
-# Nenhuma lógica de autenticação foi alterada, apenas o visual.
+#
+# NOVO: fluxo "Esqueci minha senha" (código de 6 dígitos por e-mail).
+# 1) Rode o arquivo reset_senha.sql no Supabase.
+# 2) Configure [email] no secrets (veja as instruções).
+# 3) Adicione estes imports no TOPO do app.py:
+#
+#       import smtplib, ssl, secrets, hmac
+#       from email.message import EmailMessage
 # =====================================================================
 
 def aplicar_estilo_login():
@@ -1849,6 +1856,31 @@ def aplicar_estilo_login():
             margin: 0 auto;
         }
 
+        /* Link "Esqueci minha senha" (botão terciário) */
+        div.st-key-btn_esqueci_senha {
+            display: flex;
+            justify-content: center;
+            margin-top: -0.4rem;
+        }
+        div.st-key-btn_esqueci_senha .stButton > button {
+            height: auto;
+            min-height: 0;
+            padding: 0.25rem 0.5rem;
+            border: none;
+            background: transparent;
+            box-shadow: none;
+            color: #1E3A8A;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: underline;
+        }
+        div.st-key-btn_esqueci_senha .stButton > button:hover {
+            transform: none;
+            box-shadow: none;
+            color: #2563EB;
+            background: transparent;
+        }
+
         .stButton > button:focus-visible,
         [data-testid="stFormSubmitButton"] > button:focus-visible {
             outline: 3px solid rgba(37, 99, 235, 0.45);
@@ -1874,6 +1906,182 @@ def aplicar_estilo_login():
     """, unsafe_allow_html=True)
 
 
+# =====================================================================
+# REDEFINIÇÃO DE SENHA (código de 6 dígitos enviado por e-mail)
+# =====================================================================
+RESET_VALIDADE_MIN = 15      # validade do código
+RESET_MAX_TENTATIVAS = 5     # erros permitidos por código
+RESET_INTERVALO_SEG = 60     # intervalo mínimo entre pedidos de código
+
+
+def _hash_codigo_reset(email, codigo):
+    return hashlib.sha256(f"{email}:{codigo}".encode()).hexdigest()
+
+
+def _enviar_email_codigo(destino, nome, codigo):
+    """Envia o código via SMTP usando as credenciais de st.secrets["email"]."""
+    cfg = st.secrets["email"]
+    msg = EmailMessage()
+    msg["Subject"] = "Código para redefinir sua senha - Sistema de Ponto"
+    msg["From"] = cfg["remetente"]
+    msg["To"] = destino
+    msg.set_content(
+        f"Olá, {nome}!\n\n"
+        f"Seu código para redefinir a senha é: {codigo}\n\n"
+        f"Ele vale por {RESET_VALIDADE_MIN} minutos. "
+        f"Se você não pediu a redefinição, ignore este e-mail.\n"
+    )
+    msg.add_alternative(
+        f"""
+        <div style="font-family:Segoe UI,Arial,sans-serif;max-width:420px;margin:auto;
+                    padding:24px;border:1px solid #E2E8F0;border-radius:12px">
+            <p style="color:#374151">Olá, <b>{escape(str(nome))}</b>!</p>
+            <p style="color:#374151">Use o código abaixo para redefinir sua senha:</p>
+            <p style="font-size:32px;letter-spacing:8px;font-weight:700;color:#1E3A8A;
+                      text-align:center;margin:20px 0">{codigo}</p>
+            <p style="color:#6B7280;font-size:13px">Ele vale por {RESET_VALIDADE_MIN} minutos.
+            Se você não pediu a redefinição, ignore este e-mail.</p>
+        </div>
+        """,
+        subtype="html"
+    )
+    with smtplib.SMTP(cfg["host"], int(cfg["port"]), timeout=20) as servidor:
+        servidor.starttls(context=ssl.create_default_context())
+        servidor.login(cfg["usuario"], cfg["senha"])
+        servidor.send_message(msg)
+
+
+def solicitar_codigo_reset(email):
+    """Gera e envia o código. Retorna 'ok' ou 'erro'.
+    Devolve 'ok' mesmo se o e-mail não existir (não revela quem tem cadastro)."""
+    agora = datetime.now(ZoneInfo("UTC"))
+    try:
+        usuario = supabase.table("usuarios_ponto").select("email, nome").eq("email", email).execute()
+        if not usuario.data:
+            return "ok"
+
+        ultimo = supabase.table("reset_senha_ponto").select("criado_em") \
+            .eq("email", email).order("criado_em", desc=True).limit(1).execute()
+        if ultimo.data:
+            criado = datetime.fromisoformat(ultimo.data[0]["criado_em"])
+            if (agora - criado).total_seconds() < RESET_INTERVALO_SEG:
+                return "ok"   # pedido repetido em menos de 1 min: ignora
+
+        codigo = f"{secrets.randbelow(10**6):06d}"
+
+        # invalida códigos anteriores e grava o novo
+        supabase.table("reset_senha_ponto").update({"usado": True}) \
+            .eq("email", email).eq("usado", False).execute()
+        supabase.table("reset_senha_ponto").insert({
+            "email": email,
+            "codigo_hash": _hash_codigo_reset(email, codigo),
+            "expira_em": (agora + timedelta(minutes=RESET_VALIDADE_MIN)).isoformat()
+        }).execute()
+
+        _enviar_email_codigo(email, usuario.data[0]["nome"], codigo)
+        return "ok"
+    except Exception as e:
+        print(f"[RESET SENHA] erro ao solicitar código: {e}")
+        return "erro"
+
+
+def redefinir_senha_com_codigo(email, codigo, nova_senha):
+    """Valida o código e troca a senha. Retorna (sucesso, mensagem)."""
+    agora = datetime.now(ZoneInfo("UTC"))
+    try:
+        res = supabase.table("reset_senha_ponto").select("*") \
+            .eq("email", email).eq("usado", False) \
+            .order("criado_em", desc=True).limit(1).execute()
+        if not res.data:
+            return False, "Código inválido ou expirado. Solicite um novo."
+
+        reg = res.data[0]
+        expirou = datetime.fromisoformat(reg["expira_em"]) < agora
+        if expirou or reg["tentativas"] >= RESET_MAX_TENTATIVAS:
+            supabase.table("reset_senha_ponto").update({"usado": True}).eq("id", reg["id"]).execute()
+            return False, "Código expirado ou com muitas tentativas. Solicite um novo."
+
+        if not hmac.compare_digest(reg["codigo_hash"], _hash_codigo_reset(email, codigo)):
+            supabase.table("reset_senha_ponto").update({"tentativas": reg["tentativas"] + 1}) \
+                .eq("id", reg["id"]).execute()
+            return False, "Código incorreto."
+
+        supabase.table("usuarios_ponto").update({"senha": criptografar_senha(nova_senha)}) \
+            .eq("email", email).execute()
+        supabase.table("reset_senha_ponto").update({"usado": True}).eq("email", email).execute()
+        return True, "Senha redefinida com sucesso!"
+    except Exception as e:
+        print(f"[RESET SENHA] erro ao redefinir: {e}")
+        return False, "Não foi possível redefinir a senha agora. Tente novamente."
+
+
+def _sair_do_reset():
+    for chave in ("reset_etapa", "reset_email"):
+        st.session_state.pop(chave, None)
+
+
+def fluxo_reset_senha():
+    """Tela de redefinição (2 etapas: e-mail -> código + nova senha)."""
+    etapa = st.session_state.get("reset_etapa")
+    st.markdown(
+        "<h3 style='color:#1E3A8A;font-size:1.1rem;margin:0 0 .6rem 0'>Redefinir senha</h3>",
+        unsafe_allow_html=True
+    )
+
+    if etapa == "email":
+        st.caption("Informe seu e-mail cadastrado. Enviaremos um código de 6 dígitos.")
+        with st.form("form_reset_email", border=False):
+            email_reset = st.text_input(
+                "E-mail corporativo", placeholder="nome@empresa.com.br", autocomplete="email"
+            ).strip().lower()
+            enviar = st.form_submit_button("Enviar código", type="primary")
+
+        if enviar:
+            if not email_reset:
+                st.warning("Informe o seu e-mail.")
+            else:
+                with st.spinner("Enviando código..."):
+                    status = solicitar_codigo_reset(email_reset)
+                if status == "erro":
+                    st.error("Não foi possível enviar o e-mail agora. Tente novamente em instantes.")
+                else:
+                    st.session_state["reset_email"] = email_reset
+                    st.session_state["reset_etapa"] = "codigo"
+                    st.rerun()
+
+    elif etapa == "codigo":
+        email_reset = st.session_state.get("reset_email", "")
+        st.info(
+            f"Se **{email_reset}** estiver cadastrado, enviamos um código de 6 dígitos. "
+            f"Ele vale por {RESET_VALIDADE_MIN} minutos."
+        )
+        with st.form("form_reset_codigo", border=False):
+            codigo = st.text_input("Código de 6 dígitos", max_chars=6, placeholder="000000").strip()
+            nova = st.text_input("Nova senha", type="password", placeholder="Mínimo de 6 caracteres")
+            confirma = st.text_input("Confirme a nova senha", type="password")
+            concluir = st.form_submit_button("Redefinir senha", type="primary")
+
+        if concluir:
+            if not (codigo.isdigit() and len(codigo) == 6):
+                st.warning("Digite o código de 6 dígitos recebido por e-mail.")
+            elif len(nova) < 6:
+                st.warning("A nova senha precisa ter pelo menos 6 caracteres.")
+            elif nova != confirma:
+                st.warning("As senhas não conferem.")
+            else:
+                sucesso, mensagem = redefinir_senha_com_codigo(email_reset, codigo, nova)
+                if sucesso:
+                    _sair_do_reset()
+                    st.session_state["reset_ok"] = True
+                    st.rerun()
+                else:
+                    st.error(mensagem)
+
+    if st.button("← Voltar ao login", key="btn_voltar_login", use_container_width=True):
+        _sair_do_reset()
+        st.rerun()
+
+
 def gerenciar_acesso():
     if "connected" not in st.session_state:
         st.session_state["connected"] = False
@@ -1892,6 +2100,14 @@ def gerenciar_acesso():
             """,
             unsafe_allow_html=True
         )
+
+        # Tela de redefinição de senha (substitui as abas enquanto estiver ativa)
+        if st.session_state.get("reset_etapa"):
+            fluxo_reset_senha()
+            st.stop()
+
+        if st.session_state.pop("reset_ok", False):
+            st.success("Senha redefinida! Entre com a nova senha.")
 
         aba_login, aba_cadastro = st.tabs(["🔒 Acessar Sistema", "📝 Criar Cadastro"])
 
@@ -1930,6 +2146,10 @@ def gerenciar_acesso():
                             st.error("E-mail ou senha incorretos.")
                     else:
                         st.warning("Por favor, preencha todos os campos.")
+
+            if st.button("Esqueci minha senha", key="btn_esqueci_senha", type="tertiary"):
+                st.session_state["reset_etapa"] = "email"
+                st.rerun()
 
         with aba_cadastro:
             nome_cad = st.text_input("Nome completo", key="cad_nome", placeholder="Seu nome completo")
