@@ -1210,7 +1210,7 @@ st.markdown("""
             white-space: pre-wrap;
             line-height: 1.4;
             font-size: 2rem;
-            font-weight: 1300;
+            font-weight: 900 !important;
             border: 0;
             background: transparent;
             transition: transform 160ms ease, box-shadow 160ms ease;
@@ -1220,7 +1220,7 @@ st.markdown("""
         .st-key-ponto_card_retorno_almoco button p,
         .st-key-ponto_card_saida button p {
             font-size: inherit;
-            font-weight: 1300;
+            font-weight: 900 !important;
             line-height: inherit;
             margin: 0;
         }
