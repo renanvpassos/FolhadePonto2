@@ -1177,6 +1177,30 @@ def converter_para_pdf_consolidado_tabela(df, mapeamento_celulas, data_inicio, d
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Sistema de Ponto Eletrônico", page_icon="⏱️", layout="centered")
 
+# --- TEMA SEMPRE LIGHT ---
+st.markdown("""
+    <style>
+        #MainMenu,
+        [data-testid="stMainMenu"],
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
+        .stDeployButton,
+        [data-testid="stAppDeployButton"],
+        a[href*="github.com"],
+        footer,
+        ._profileContainer_gzau3_53,
+        ._container_gzau3_1,
+        .viewerBadge_container__r5tak {
+            visibility: hidden !important;
+            display: none !important;
+        }
+        html, body, .stApp {
+            color-scheme: light !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- ESTILIZAÇÃO CSS CUSTOMIZADA ---
 st.markdown("""
     <style>
