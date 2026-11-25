@@ -2684,7 +2684,7 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
                             if pontos["SAÍDA ALMOÇO"]:
                                 t_saida_alm = pontos["SAÍDA ALMOÇO"]
                                 tempo_almoco_segundos = int((horario_final_gravacao - t_saida_alm).total_seconds())
-                                limite_almoco = (1 * 3600) + (10 * 60)
+                                limite_almoco = 1 * 3600  # 1 hora, sem tolerância
                                 
                                 if tempo_almoco_segundos > limite_almoco:
                                     justificativa_obrigatoria = True
