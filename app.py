@@ -2349,7 +2349,7 @@ if opcao == "REGISTRO DE PONTO":
         <style>
             div[data-testid="stMainBlockContainer"] {
                 width: 100%;
-                max-width: 1280px !important;
+                max-width: 1600px !important;
                 padding-left: 2rem;
                 padding-right: 2rem;
             }
@@ -2370,7 +2370,7 @@ if opcao == "REGISTRO DE PONTO":
     identificadores_etapa = {
         etapa: identificador for etapa, identificador, _ in etapas_ponto
     }
-    colunas_etapas = st.columns(4)
+    colunas_etapas = st.columns(4, gap="small")
     containers_por_etapa = {}
     for coluna, (etapa, identificador, numero) in zip(colunas_etapas, etapas_ponto):
         horario_registrado = pontos[etapa]
