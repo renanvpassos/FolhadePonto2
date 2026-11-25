@@ -1228,6 +1228,26 @@ st.markdown("""
         .st-key-ponto_card_saida button {
             color: #4b5563;
         }
+        [class*="st-key-ponto_detalhes_"] {
+            font-size: 0.84rem;
+        }
+        [class*="st-key-ponto_detalhes_"] [data-testid="stMarkdownContainer"] {
+            font-size: 0.84rem;
+        }
+        [class*="st-key-ponto_detalhes_"] h1,
+        [class*="st-key-ponto_detalhes_"] h2,
+        [class*="st-key-ponto_detalhes_"] h3,
+        [class*="st-key-ponto_detalhes_"] h4,
+        [class*="st-key-ponto_detalhes_"] h5,
+        [class*="st-key-ponto_detalhes_"] h6 {
+            font-size: 0.95rem !important;
+        }
+        [class*="st-key-ponto_detalhes_"] [data-testid="stWidgetLabel"],
+        [class*="st-key-ponto_detalhes_"] input,
+        [class*="st-key-ponto_detalhes_"] textarea,
+        [class*="st-key-ponto_detalhes_"] button {
+            font-size: 0.84rem;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -2347,6 +2367,9 @@ if opcao == "REGISTRO DE PONTO":
         ("RETORNO ALMOÇO", "retorno_almoco", "③"),
         ("SAÍDA", "saida", "④")
     ]
+    identificadores_etapa = {
+        etapa: identificador for etapa, identificador, _ in etapas_ponto
+    }
     colunas_etapas = st.columns(4)
     containers_por_etapa = {}
     for coluna, (etapa, identificador, numero) in zip(colunas_etapas, etapas_ponto):
@@ -2391,7 +2414,9 @@ if opcao == "REGISTRO DE PONTO":
 
 if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
     
-    with containers_por_etapa[opcao]:
+    with containers_por_etapa[opcao].container(
+        key=f"ponto_detalhes_{identificadores_etapa[opcao]}"
+    ):
         horario_atual_ponto = pontos[opcao]
         
         if horario_atual_ponto:
