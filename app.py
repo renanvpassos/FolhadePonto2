@@ -2575,7 +2575,7 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
                     else:
                         st.error(f"🛑 A justificativa precisa ter pelo menos 3 caracteres. (Atual: {len(justificativa_limpa)})")
                 
-                if c1.button("Confirmar Marcação", key=f"sim_{opcao}", use_container_width=True, type="primary", disabled=bloquear_confirmacao):
+                if c1.button("Confirmar Marcação", key=f"sim_{opcao}", use_container_width=False, type="primary", disabled=bloquear_confirmacao):
                     
                     if justificativa_obrigatoria and (not justificativa_limpa or len(justificativa_limpa) < 3):
                         st.error("🛑 Erro: Gravação impedida! Preencha a justificativa com no mínimo 3 caracteres.")
@@ -2620,7 +2620,7 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
                         st.success(f"Horário gravado com sucesso!")
                         st.rerun()
                         
-                if c2.button("Cancelar", key=f"nao_{opcao}", use_container_width=True):
+                if c2.button("Cancelar", key=f"nao_{opcao}", use_container_width=False):
                     st.session_state[f'confirmar_{opcao}'] = False
                     st.session_state["etapa_ponto_aberta"] = None
                     st.rerun()
