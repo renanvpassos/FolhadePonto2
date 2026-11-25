@@ -1709,7 +1709,7 @@ def aplicar_estilo_login():
 
         /* ---------- Cartão central ---------- */
         div.block-container {
-            max-width: 540px;
+            max-width: 460px;
             margin: 5vh auto 0 auto;
             padding: 2.2rem 2.2rem 2rem 2.2rem;
             background: #ffffff;
@@ -1727,10 +1727,10 @@ def aplicar_estilo_login():
             margin-bottom: 1.2rem;
         }
         .login-header img {
-            width: 400px;
-            max-width: 100%;
+            width: 200px;
+            max-width: 70%;
             height: auto;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
         .login-header h1 {
             color: #1E3A8A;
@@ -1830,8 +1830,8 @@ def aplicar_estilo_login():
         }
         /* Botão "Entrar": largura reduzida e centralizado */
         div[data-testid="stElementContainer"]:has([data-testid="stFormSubmitButton"]),
-        [data-testid="stForm"] .stButton,
-        [data-testid="stForm"] div.element-container:has(button) {
+        div.element-container:has(> [data-testid="stFormSubmitButton"]),
+        [data-testid="stForm"] .stButton {
             display: flex;
             justify-content: center;
             width: 100%;
