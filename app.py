@@ -2544,7 +2544,7 @@ if opcao == "REGISTRO DE PONTO":
         """,
         unsafe_allow_html=True
     )
-    st.title("📍 Registro de Ponto")
+    st.title("Registro de Ponto")
     st.caption(f"🗓️ {hoje.strftime('%d/%m/%Y')}  ·  ⏱️ Horário atual: {agora_br.strftime('%H:%M')}")
     st.write("")
 
