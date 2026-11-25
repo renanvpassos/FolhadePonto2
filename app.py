@@ -1201,6 +1201,22 @@ def converter_para_pdf_consolidado_tabela(df, mapeamento_celulas, data_inicio, d
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Sistema de Ponto Eletrônico", page_icon="⏱️", layout="centered")
 
+# --- LIMPAR TEMA / LOCALSTORAGE DO NAVEGADOR AO CARREGAR ---
+components.html("""
+<script>
+  try {
+    // Remove especificamente o tema salvo pelo Streamlit (ou use clear() para limpar tudo)
+    Object.keys(window.parent.localStorage).forEach(function(key) {
+      if (key.toLowerCase().includes('theme')) {
+        window.parent.localStorage.removeItem(key);
+      }
+    });
+    // Caso queira limpar TODO o localStorage do domínio sempre que atualizar:
+    // window.parent.localStorage.clear();
+  } catch (e) {}
+</script>
+""", height=0)
+
 st.markdown("""
     <style>
         :root {
