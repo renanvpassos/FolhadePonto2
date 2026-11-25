@@ -20,6 +20,29 @@ import smtplib, ssl, secrets, hmac
 from email.message import EmailMessage
 from streamlit_option_menu import option_menu
 
+components.html("""
+<script>
+(function () {
+    const doc = window.parent.document;
+
+    function bloquearResize() {
+        const sb = doc.querySelector('section[data-testid="stSidebar"]');
+        if (!sb) return;
+        sb.querySelectorAll('*').forEach(function (el) {
+            const cursor = window.parent.getComputedStyle(el).cursor;
+            if (cursor === 'col-resize' || cursor === 'ew-resize') {
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('pointer-events', 'none', 'important');
+            }
+        });
+    }
+
+    bloquearResize();
+    setInterval(bloquearResize, 500);
+})();
+</script>
+""", height=0)
+
 # --- BLOQUEIO DE DISPOSITIVOS MÓVEIS ---
 components.html("""
 <!DOCTYPE html>
@@ -1178,12 +1201,11 @@ def converter_para_pdf_consolidado_tabela(df, mapeamento_celulas, data_inicio, d
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(page_title="Sistema de Ponto Eletrônico", page_icon="⏱️", layout="centered")
 
-# --- TEMA SEMPRE LIGHT ---
 st.markdown("""
     <style>
         #MainMenu,
         [data-testid="stMainMenu"],
-        [data-testid="stToolbar"],
+        [data-testid="stToolbarActions"],
         [data-testid="stDecoration"],
         [data-testid="stStatusWidget"],
         .stDeployButton,
@@ -1196,6 +1218,16 @@ st.markdown("""
             visibility: hidden !important;
             display: none !important;
         }
+
+        /* Garante que o botão de expandir a sidebar fique sempre visível */
+        [data-testid="stToolbar"],
+        [data-testid="stExpandSidebarButton"],
+        [data-testid="stSidebarCollapsedControl"],
+        [data-testid="collapsedControl"] {
+            visibility: visible !important;
+            display: flex !important;
+        }
+
         html, body, .stApp {
             color-scheme: light !important;
         }
