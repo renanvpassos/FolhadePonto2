@@ -1191,6 +1191,32 @@ st.markdown("""
         .stButton>button {
             border-radius: 8px;
         }
+        .st-key-ponto_card_entrada button,
+        .st-key-ponto_card_saida_almoco button,
+        .st-key-ponto_card_retorno_almoco button,
+        .st-key-ponto_card_saida button {
+            min-height: 108px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+            font-weight: 600;
+            border-radius: 16px;
+            transition: transform 160ms ease, box-shadow 160ms ease;
+        }
+        .st-key-ponto_card_entrada button:hover,
+        .st-key-ponto_card_saida_almoco button:hover,
+        .st-key-ponto_card_retorno_almoco button:hover,
+        .st-key-ponto_card_saida button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        }
+        .st-key-ponto_card_entrada button,
+        .st-key-ponto_card_saida_almoco button,
+        .st-key-ponto_card_retorno_almoco button,
+        .st-key-ponto_card_saida button {
+            background: #f1f3f5;
+            border: 1px solid #d1d5db;
+            color: #4b5563;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -2242,7 +2268,7 @@ st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 📋 Navegação")
 
-opcoes_menu = ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA", "LOG", "ESPELHO DE PONTO"]
+opcoes_menu = ["REGISTRO DE PONTO", "LOG", "ESPELHO DE PONTO"]
 if cargo_usuario == "Master":
     opcoes_menu.insert(opcoes_menu.index("LOG") + 1, "LOG INTERNO")
 
@@ -2285,16 +2311,52 @@ for k, v in pontos.items():
     if v and isinstance(v, str):
         pontos[k] = datetime.fromisoformat(v).astimezone(fuso_br)
 
-if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
-    st.title(f"📍 Registro de {opcao.title()}")
-    
-    c_data, c_hora = st.columns(2)
-    with c_data:
-        st.metric(label="🗓️ Data Atual", value=hoje.strftime('%d/%m/%Y'))
-    with c_hora:
-        st.metric(label="⏱️ Horário atual", value=agora_br.strftime('%H:%M'))
-        
+etapa_ponto_aberta = None
+if opcao == "REGISTRO DE PONTO":
+    st.title("📍 Registro de Ponto")
+    st.caption(f"🗓️ {hoje.strftime('%d/%m/%Y')}  ·  ⏱️ Horário atual: {agora_br.strftime('%H:%M')}")
     st.write("")
+
+    etapas_ponto = [
+        ("ENTRADA", "entrada", "①"),
+        ("SAÍDA ALMOÇO", "saida_almoco", "②"),
+        ("RETORNO ALMOÇO", "retorno_almoco", "③"),
+        ("SAÍDA", "saida", "④")
+    ]
+    colunas_etapas = st.columns(4)
+    for coluna, (etapa, identificador, numero) in zip(colunas_etapas, etapas_ponto):
+        horario_registrado = pontos[etapa]
+        estado_card = "✅ Registrado" if horario_registrado else "◷ Pendente"
+        if horario_registrado:
+            estado_card += f"\n{horario_registrado.strftime('%H:%M:%S')}"
+        chave_card = f"ponto_card_{identificador}"
+        with coluna:
+            with st.container(key=chave_card):
+                if horario_registrado:
+                    st.markdown(
+                        f'<style>.st-key-{chave_card} button {{ background: #dcfce7; '
+                        'border: 1px solid #86efac; color: #166534; }</style>',
+                        unsafe_allow_html=True
+                    )
+                if st.button(
+                    f"{numero}  {etapa}\n{estado_card}",
+                    key=f"selecionar_ponto_{identificador}",
+                    use_container_width=True
+                ):
+                    if st.session_state.get("etapa_ponto_aberta") == etapa:
+                        st.session_state["etapa_ponto_aberta"] = None
+                        for nome_etapa, _, _ in etapas_ponto:
+                            st.session_state[f"confirmar_{nome_etapa}"] = False
+                    else:
+                        st.session_state["etapa_ponto_aberta"] = etapa
+                        for nome_etapa, _, _ in etapas_ponto:
+                            st.session_state[f"confirmar_{nome_etapa}"] = nome_etapa == etapa
+                    st.rerun()
+
+    etapa_ponto_aberta = st.session_state.get("etapa_ponto_aberta")
+    opcao = etapa_ponto_aberta
+
+if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
     
     with st.container():
         st.markdown('<div class="card-ponto">', unsafe_allow_html=True)
@@ -2302,7 +2364,6 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
         
         if horario_atual_ponto:
             st.success(f"✅ Seu ponto de **{opcao}** de hoje já está registrado: **{horario_atual_ponto.strftime('%H:%M:%S')}**")
-            texto_botao = f"🔄 Alterar Horário de {opcao.title()}"
         else:
             st.info(f"ℹ️ Você ainda não marcou sua **{opcao.title()}** para o dia de hoje.")
             
@@ -2313,14 +2374,7 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
                 else:
                     st.caption("⚠️ Você ainda não registrou a **Saída Almoço** de hoje.")
             
-            texto_botao = f"🔴 Registrar {opcao.title()}"
-            
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        col_btn_1, col_btn_2, col_btn_3 = st.columns([1, 2, 1])
-        with col_btn_2:
-            if st.button(texto_botao, use_container_width=True, type="secondary" if horario_atual_ponto else "primary"):
-                st.session_state[f'confirmar_{opcao}'] = True
                 
         if st.session_state.get(f'confirmar_{opcao}', False):
             st.write("")
@@ -2513,6 +2567,7 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
                         
                 if c2.button("Cancelar", key=f"nao_{opcao}", use_container_width=True):
                     st.session_state[f'confirmar_{opcao}'] = False
+                    st.session_state["etapa_ponto_aberta"] = None
                     st.rerun()
 
 # =====================================================================
