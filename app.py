@@ -1981,7 +1981,8 @@ def solicitar_codigo_reset(email):
         _enviar_email_codigo(email, usuario.data[0]["nome"], codigo)
         return "ok"
     except Exception as e:
-        print(f"[RESET SENHA] erro ao solicitar código: {e}")
+        print(f"[RESET SENHA] erro ao solicitar código: {type(e).__name__}: {e}")
+        st.session_state["reset_erro_detalhe"] = f"{type(e).__name__}: {e}"
         return "erro"
 
 
@@ -2044,6 +2045,9 @@ def fluxo_reset_senha():
                     status = solicitar_codigo_reset(email_reset)
                 if status == "erro":
                     st.error("Não foi possível enviar o e-mail agora. Tente novamente em instantes.")
+                    # Diagnóstico: só aparece se você criar debug_reset = true no secrets
+                    if st.secrets.get("debug_reset", False):
+                        st.code(st.session_state.get("reset_erro_detalhe", "sem detalhe"))
                 else:
                     st.session_state["reset_email"] = email_reset
                     st.session_state["reset_etapa"] = "codigo"
