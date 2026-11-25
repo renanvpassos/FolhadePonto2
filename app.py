@@ -2348,11 +2348,13 @@ st.markdown("""
         height: auto;
     }
 
-    /* ---------- Botão de logout: só ícone, vermelho ---------- */
+    /* ---------- Botão de logout: canto inferior direito da sidebar ---------- */
     section[data-testid="stSidebar"] div.st-key-btn_logout {
-        display: flex;
-        justify-content: center;
-        width: 100%;
+        position: fixed;
+        bottom: 16px;
+        left: calc(var(--sidebar-width, 21rem) - 60px);
+        width: auto !important;
+        z-index: 999;
     }
     section[data-testid="stSidebar"] div.st-key-btn_logout button {
         width: 44px !important;
