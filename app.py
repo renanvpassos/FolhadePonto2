@@ -1683,29 +1683,200 @@ def converter_para_excel_multiaba(df_geral):
             dados_aba.to_excel(writer, index=False, sheet_name=nome_aba)
     return output.getvalue()
 
+# =====================================================================
+# LOGIN MODERNO
+# =====================================================================
+
+def aplicar_estilo_login():
+    """CSS aplicado SOMENTE na tela de login (não afeta o resto do sistema,
+    porque esta função só é chamada enquanto o usuário não está conectado)."""
+    st.markdown("""
+    <style>
+        /* ---------- Fundo da página ---------- */
+        .stApp {
+            background:
+                radial-gradient(900px 500px at 12% -10%, rgba(37, 99, 235, 0.18), transparent 60%),
+                radial-gradient(800px 480px at 100% 110%, rgba(30, 58, 138, 0.20), transparent 60%),
+                linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        /* Esconde elementos padrão do Streamlit na tela de login */
+        header[data-testid="stHeader"] { background: transparent; }
+        #MainMenu, footer { visibility: hidden; }
+
+        /* ---------- Cartão central ---------- */
+        div.block-container {
+            max-width: 460px;
+            margin: 5vh auto 0 auto;
+            padding: 2.2rem 2.2rem 2rem 2.2rem;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid rgba(30, 58, 138, 0.08);
+            box-shadow: 0 20px 50px rgba(30, 58, 138, 0.15);
+        }
+
+        /* ---------- Logo + títulos ---------- */
+        .login-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+        .login-header img {
+            width: 200px;
+            max-width: 70%;
+            height: auto;
+            margin-bottom: 14px;
+        }
+        .login-header h1 {
+            color: #1E3A8A;
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            padding: 0;
+            letter-spacing: -0.01em;
+        }
+        .login-header p {
+            color: #6B7280;
+            font-size: 0.92rem;
+            margin: 0;
+        }
+
+        /* ---------- Abas ---------- */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 6px;
+            background: #F1F5F9;
+            padding: 5px;
+            border-radius: 12px;
+            border-bottom: none;
+        }
+        .stTabs [data-baseweb="tab"] {
+            flex: 1;
+            height: 40px;
+            justify-content: center;
+            border-radius: 9px;
+            background: transparent;
+            color: #64748B;
+            font-weight: 600;
+        }
+        .stTabs [aria-selected="true"] {
+            background: #ffffff;
+            color: #1E3A8A;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+        }
+        .stTabs [data-baseweb="tab-highlight"],
+        .stTabs [data-baseweb="tab-border"] { display: none; }
+
+        /* ---------- Formulário sem borda dupla ---------- */
+        [data-testid="stForm"] {
+            border: none;
+            padding: 0;
+        }
+
+        /* ---------- Campos ---------- */
+        .stTextInput label p {
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+        .stTextInput div[data-baseweb="input"] {
+            background: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 12px;
+            transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+        }
+        .stTextInput div[data-baseweb="input"]:focus-within {
+            background: #ffffff;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        }
+        .stTextInput input {
+            color: #0F172A;
+            padding: 0.7rem 0.9rem;
+        }
+
+        /* ---------- Botões ---------- */
+        .stButton > button,
+        [data-testid="stFormSubmitButton"] > button {
+            height: 48px;
+            border-radius: 12px;
+            font-weight: 700;
+            border: 1.5px solid #CBD5E1;
+            transition: transform .12s ease, box-shadow .12s ease;
+        }
+        .stButton > button[kind="primary"],
+        [data-testid="stFormSubmitButton"] > button[kind="primary"],
+        [data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"] {
+            background: linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.30);
+        }
+        .stButton > button:hover,
+        [data-testid="stFormSubmitButton"] > button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
+        }
+        .stButton > button:focus-visible,
+        [data-testid="stFormSubmitButton"] > button:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.45);
+            outline-offset: 2px;
+        }
+
+        /* ---------- Títulos das abas (subheader) ---------- */
+        .stTabs h3 {
+            color: #1E3A8A;
+            font-size: 1.1rem;
+            padding-top: 0.6rem;
+        }
+
+        /* ---------- Responsivo ---------- */
+        @media (max-width: 520px) {
+            div.block-container {
+                margin-top: 2vh;
+                padding: 1.6rem 1.2rem;
+                border-radius: 16px;
+            }
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+
 def gerenciar_acesso():
     if "connected" not in st.session_state:
         st.session_state["connected"] = False
 
     if not st.session_state["connected"]:
-        st.title("⏱️ Sistema de Ponto Eletrônico")
-        st.write("Por favor, faça o acesso ou crie uma conta para registrar suas jornadas.")
-        st.write("---")
-        
+        aplicar_estilo_login()
+
+        # Logo centralizada + título
+        st.markdown(
+            f"""
+            <div class="login-header">
+                <img src="data:image/png;base64,{get_logo_base64()}" alt="Logo">
+                <h1>Sistema de Ponto Eletrônico</h1>
+                <p>Acesse sua conta ou crie um cadastro para registrar suas jornadas.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         aba_login, aba_cadastro = st.tabs(["🔒 Acessar Sistema", "📝 Criar Cadastro"])
-        
+
         with aba_login:
-            st.subheader("Login")
-            with st.form("form_login", clear_on_submit=False):
+            with st.form("form_login", clear_on_submit=False, border=False):
                 email_login = st.text_input(
                     "E-mail corporativo",
                     key="login_email",
+                    placeholder="nome@empresa.com.br",
                     autocomplete="email"
                 ).strip().lower()
                 senha_login = st.text_input(
                     "Senha",
                     type="password",
                     key="login_senha",
+                    placeholder="Digite sua senha",
                     autocomplete="current-password"
                 )
 
@@ -1728,14 +1899,13 @@ def gerenciar_acesso():
                             st.error("E-mail ou senha incorretos.")
                     else:
                         st.warning("Por favor, preencha todos os campos.")
-                    
+
         with aba_cadastro:
-            st.subheader("Novo Colaborador")
-            nome_cad = st.text_input("Nome Completo", key="cad_nome")
-            email_cad = st.text_input("E-mail para cadastro", key="cad_email").strip().lower()
-            senha_cad = st.text_input("Crie uma Senha", type="password", key="cad_senha")
-            
-            if st.button("Cadastrar Novo Usuário", use_container_width=True):
+            nome_cad = st.text_input("Nome completo", key="cad_nome", placeholder="Seu nome completo")
+            email_cad = st.text_input("E-mail para cadastro", key="cad_email", placeholder="nome@empresa.com.br").strip().lower()
+            senha_cad = st.text_input("Crie uma senha", type="password", key="cad_senha", placeholder="Escolha uma senha segura")
+
+            if st.button("Cadastrar novo usuário", use_container_width=True, type="primary"):
                 if nome_cad and email_cad and senha_cad:
                     existe = supabase.table("usuarios_ponto").select("email").eq("email", email_cad).execute()
                     if existe.data:
