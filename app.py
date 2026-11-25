@@ -1191,17 +1191,28 @@ st.markdown("""
         .stButton>button {
             border-radius: 8px;
         }
+        .st-key-ponto_card_entrada,
+        .st-key-ponto_card_saida_almoco,
+        .st-key-ponto_card_retorno_almoco,
+        .st-key-ponto_card_saida {
+            background: #f1f3f5;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            padding: 12px;
+            transition: box-shadow 160ms ease;
+        }
         .st-key-ponto_card_entrada button,
         .st-key-ponto_card_saida_almoco button,
         .st-key-ponto_card_retorno_almoco button,
         .st-key-ponto_card_saida button {
             min-height: 220px;
-            padding: 24px 16px;
+            padding: 24px 12px;
             white-space: pre-wrap;
             line-height: 1.7;
             font-size: 1.15rem;
             font-weight: 700;
-            border-radius: 20px;
+            border: 0;
+            background: transparent;
             transition: transform 160ms ease, box-shadow 160ms ease;
         }
         .st-key-ponto_card_entrada button:hover,
@@ -1215,8 +1226,6 @@ st.markdown("""
         .st-key-ponto_card_saida_almoco button,
         .st-key-ponto_card_retorno_almoco button,
         .st-key-ponto_card_saida button {
-            background: #f1f3f5;
-            border: 1px solid #d1d5db;
             color: #4b5563;
         }
     </style>
@@ -2339,26 +2348,27 @@ if opcao == "REGISTRO DE PONTO":
         ("SAÍDA", "saida", "④")
     ]
     colunas_etapas = st.columns(4)
-    colunas_por_etapa = {}
+    containers_por_etapa = {}
     for coluna, (etapa, identificador, numero) in zip(colunas_etapas, etapas_ponto):
-        colunas_por_etapa[etapa] = coluna
         horario_registrado = pontos[etapa]
         estado_card = "✅ Registrado" if horario_registrado else "◷ Pendente"
         if horario_registrado:
             estado_card += f"\n{horario_registrado.strftime('%H:%M:%S')}"
         chave_card = f"ponto_card_{identificador}"
         with coluna:
-            with st.container(key=chave_card):
+            container_card = st.container(key=chave_card)
+            containers_por_etapa[etapa] = container_card
+            with container_card:
                 if horario_registrado:
                     st.markdown(
-                        f'<style>.st-key-{chave_card} button {{ background: #dcfce7; '
-                        'border: 1px solid #86efac; color: #166534; }</style>',
+                        f'<style>.st-key-{chave_card} {{ background: #dcfce7; '
+                        'border-color: #86efac; }</style>'
+                        f'<style>.st-key-{chave_card} button {{ color: #166534; }}</style>',
                         unsafe_allow_html=True
                     )
                 if st.session_state.get("etapa_ponto_aberta") == etapa:
                     st.markdown(
-                        f'<style>.st-key-{chave_card} button {{ outline: 3px solid #3b82f6; '
-                        'outline-offset: 2px; }</style>',
+                        f'<style>.st-key-{chave_card} {{ box-shadow: 0 0 0 3px #3b82f6; }}</style>',
                         unsafe_allow_html=True
                     )
                 if st.button(
@@ -2381,8 +2391,7 @@ if opcao == "REGISTRO DE PONTO":
 
 if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
     
-    with colunas_por_etapa[opcao].container(border=True):
-        st.markdown('<div class="card-ponto">', unsafe_allow_html=True)
+    with containers_por_etapa[opcao]:
         horario_atual_ponto = pontos[opcao]
         
         if horario_atual_ponto:
@@ -2396,8 +2405,6 @@ if opcao in ["ENTRADA", "SAÍDA ALMOÇO", "RETORNO ALMOÇO", "SAÍDA"]:
                     st.caption(f"💡 **Horário da sua Saída Almoço:** {horario_saida_almoco.strftime('%H:%M:%S')}")
                 else:
                     st.caption("⚠️ Você ainda não registrou a **Saída Almoço** de hoje.")
-            
-        st.markdown('</div>', unsafe_allow_html=True)
                 
         if st.session_state.get(f'confirmar_{opcao}', False):
             st.write("")
